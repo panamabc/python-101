@@ -1,0 +1,86 @@
+import pandas as pd
+import pandas_datareader as pdr
+#import figure,show,output_file
+import datetime
+
+
+
+#start=datetime(2017,10,26)
+#end=datetime(2017,11,26)
+#data=pdr.get_data_iex('AAPL',start,end)
+
+
+data = pdr.DataReader('AAPL', 'iex', start=datetime.datetime(2013, 10, 1), end=datetime.datetime(2018, 1, 1))
+#data.close.plot
+
+# Import Matplotlib's `pyplot` module as `plt`
+import matplotlib.pyplot as plt
+
+# Plot the closing prices for `aapl`
+data['close'].plot(grid=True)
+
+# Show the plot
+plt.show()
+
+# Plot the closing prices for `aapl`
+data['volume'].plot(grid=True)
+
+# Show the plot
+plt.show()
+###
+
+
+
+
+
+
+
+
+# Import `numpy` as `np`
+import numpy as np
+
+# Assign `Adj Close` to `daily_close`
+daily_close = data[['close']]
+
+# Daily returns
+daily_pct_change = daily_close.pct_change()
+
+# Replace NA values with 0
+daily_pct_change.fillna(0, inplace=True)
+
+# Inspect daily returns
+print(daily_pct_change)
+
+# Daily log returns
+daily_log_returns = np.log(daily_close.pct_change()+1)
+
+# Print daily log returns
+print(daily_log_returns)
+
+
+
+
+
+
+
+
+
+# Daily returns
+daily_pct_change = daily_close / daily_close.shift(1) - 1
+
+# Print `daily_pct_change`
+print(daily_pct_change)
+
+
+# Plot the distribution of `daily_pct_c`
+daily_pct_change.hist(bins=50)
+
+# Show the plot
+plt.show()
+
+# Pull up summary statistics
+print(daily_pct_change.describe())
+
+#close = data['Adj Close']
+#close.plot()
+#plt.show()

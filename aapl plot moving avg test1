@@ -1,0 +1,98 @@
+import pandas as pd
+
+import pandas_datareader.data as pdr
+import datetime 
+from bokeh.plotting import figure,show,output_file
+
+aapl = pdr.DataReader("AAPL", 'iex', start=datetime.datetime(2013, 10, 1), 
+                          end=datetime.datetime(2018, 6, 1))
+print (aapl)
+#data.head
+#aapl = pdr.get_data_robinhood('AAPL', 
+ #                         start=datetime.datetime(2015, 10, 1), 
+  #                        end=datetime.datetime(2016, 1, 1))
+
+
+def get(tickers, startdate, enddate):
+  def data(ticker):
+    return (pdr.DataReader(ticker,'iex', start=startdate, end=enddate))
+  datas = map (data, tickers)
+  return(pd.concat(datas, keys=tickers, names=['Ticker', 'Date']))
+
+tickers = ['AAPL', 'MSFT', 'IBM', 'GOOG']
+all_data = get(tickers, datetime.datetime(2013, 10, 1), datetime.datetime(2018, 1, 1))
+
+all_data
+
+
+# Import matplotlib
+import matplotlib.pyplot as plt 
+
+# Isolate the `Adj Close` values and transform the DataFrame
+daily_close_px = all_data[['close']].reset_index().pivot('Date', 'Ticker', 'close')
+
+# Calculate the daily percentage change for `daily_close_px`
+daily_pct_change = daily_close_px.pct_change()
+
+# Plot the distributions
+daily_pct_change.hist(bins=50, sharex=True, figsize=(12,8))
+
+# Show the resulting plot
+plt.show()
+
+
+# Import matplotlib
+import matplotlib.pyplot as plt
+
+# Plot a scatter matrix with the `daily_pct_change` data 
+pd.scatter_matrix(daily_pct_change, diagonal='kde', alpha=0.1,figsize=(12,12))
+
+# Show the plot
+plt.show()
+
+
+
+# Isolate the adjusted closing prices 
+close_px = aapl['close']
+
+# Calculate the moving average
+moving_avg = close_px.rolling(window=40).mean()
+
+# Inspect the result
+print(moving_avg[-10:])
+
+
+# Short moving window rolling mean
+aapl['46'] = close_px.rolling(window=40).mean()
+
+# Long moving window rolling mean
+aapl['252'] = close_px.rolling(window=252).mean()
+aapl['91'] = close_px.rolling(window=91).mean()
+aapl['161'] = close_px.rolling(window=161).mean()
+
+# Plot the adjusted closing price, the short and long windows of rolling means
+aapl[['close', '46', '252','91','161']].plot()
+
+# Show plot
+plt.show()
+
+
+# Import matplotlib
+import matplotlib.pyplot as plt 
+import numpy as np
+
+
+# Define the minumum of periods to consider 
+min_periods = 75 
+
+# Calculate the volatility
+vol = daily_pct_change.rolling(min_periods).std() * np.sqrt(min_periods) 
+
+# Plot the volatility
+vol.plot(figsize=(10, 8))
+
+# Show the plot
+plt.show()
+
+
+
